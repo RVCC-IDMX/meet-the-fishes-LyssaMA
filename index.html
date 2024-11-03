@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquarium</title>
+    <script src="https://pixijs.download/release/pixi.js"></script>
+    <link rel="icon" href="data:,">
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #title-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 223, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #1e0a57;
+            font-family: Arial, sans-serif;
+            font-size: 28px;
+            text-align: center;
+            z-index: 10;
+        }
+/*
+        #title-screen:hover{
+            background-color: rgba(0, 223, 255, 0.9);
+            color: #ffffff;
+        }
+            */
+
+        #start-button {
+            padding: 20px 30px;
+            font-size: 22px;
+            background-color: #1e0a57;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 40px;
+        }
+
+        #start-button:hover {
+            background-color: #ffffff;
+            color: #1e0a57;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="title-screen">
+        <h1>Aquarium</h1>
+        <p>Click the button to meet the fish!</p>
+        <button id="start-button">Start</button>
+    </div>
+
+    <script type="module">
+        async function startAnimation() {
+            console.log("Start button clicked");
+
+            document.getElementById('title-screen').style.display = 'none';
+
+            // Initialize PixiJS application
+            const app = new PIXI.Application({
+                width: 2000,
+                height: 1000,
+                backgroundColor: 0x00dfff
+            });
+
+            document.body.appendChild(app.view);
+
+            // Load assets
+            const assetUrls = [
+                "img/Blue Fish.png",    // Fish 1
+                "img/Red Fish.png",     // Fish 2
+                "img/Silver Fish.png",   // Fish 3
+                "img/Yellow Fish.png",   // Fish 4
+                "img/—Pngtree—fresh and large seaweed_5256743.png",   // Plant
+                "img/bubbles.png",    // Bubbles
+                "img/Yellow ish and Blue Fish.png",   // Fish 5
+                "img/3 fish.png",    // Three Fish
+                "img/jellyfish.png",    // Jellyfish
+                "img/Turtle.png",  // Turtle
+                "img/Brown and Green Fish.png",  //  Fish 6
+                "img/lepomis-gibbosus.png",  //  Fish 7
+                "img/Goldfish.png",  //  Fish 8
+                "img/lepomis-macrochirus.png"  //  Fish 9
+            ];
+
+            // Wait for assets to load
+            await Promise.all(assetUrls.map(url => PIXI.Assets.load(url)));
+
+            // Add fish sprites
+            let fish1 = PIXI.Sprite.from(assetUrls[0]); // Blue Fish
+            fish1.scale.set(0.08);
+            fish1.anchor.set(0.4, 0.8);
+            fish1.x = 700;
+            fish1.y = 175;
+
+            let fish2 = PIXI.Sprite.from(assetUrls[1]); // Red Fish
+            fish2.scale.set(0.05);
+            fish2.anchor.set(0.8);
+            fish2.x = 200;
+            fish2.y = 400;
+
+            let fish3 = PIXI.Sprite.from(assetUrls[2]); // Silver Fish
+            fish3.scale.set(0.135);
+            fish3.anchor.set(0.30);
+            fish3.x = 275;
+            fish3.y = 300;
+
+            let fish4 = PIXI.Sprite.from(assetUrls[3]); // Yellow Fish
+            fish4.scale.set(0.1);
+            fish4.anchor.set(-0.25);
+            fish4.x = 400;
+            fish4.y = 350;
+
+            let fish5 = PIXI.Sprite.from(assetUrls[6]); // Yellow and Blue Fish
+            fish5.scale.set(0.15);
+            fish5.anchor.set(-0.8);
+            fish5.x = 575;
+            fish5.y = 475;
+
+            let fish6 = PIXI.Sprite.from(assetUrls[10]); // Fish 6
+            fish6.scale.set(0.15, 0.15);
+            fish6.anchor.set(-0.8);
+            fish6.x = 575;
+            fish6.y = 325;
+
+            let fish7 = PIXI.Sprite.from(assetUrls[11]); //  Fish 7
+            fish7.scale.set(-0.15, .15);
+            fish7.anchor.set(0.5);
+            fish7.x = 475;
+            fish7.y = 175;
+
+            let fish8 = PIXI.Sprite.from(assetUrls[12]); // Fish 8
+            fish8.scale.set(0.15);
+            fish8.anchor.set(0.5);
+            fish8.x = 20; //  Bottom left corner
+            fish8.y = app.screen.height - 250; // Near bottom
+            app.stage.addChild(fish8);
+
+            let fish8Direction = 1;
+            const fish8Speed = 2;
+            const halfwayX = app.screen.width / 2;
+
+            let fish9 = PIXI.Sprite.from(assetUrls[13]); //  Fish 9
+            fish9.scale.set(-0.15, .15);
+            fish9.anchor.set(0.5);
+            fish9.x = 575;
+            fish9.y = 475;
+
+            // Add three fish sprite
+            let threeFish = PIXI.Sprite.from(assetUrls[7]); // Three Fish (school)
+            threeFish.scale.set(0.1); // Adjust scale as needed
+            threeFish.anchor.set(0.5); // Center the anchor
+            threeFish.x = -200; // Start off-screen on the left
+            threeFish.y = 720; // Positioned below the jellyfish
+
+            // Second three fish sprite
+            let SecondThreeFish = PIXI.Sprite.from(assetUrls[7]); // Three Fish (little school)
+            SecondThreeFish.scale.set(0.05);
+            SecondThreeFish.anchor.set(0.5);
+            SecondThreeFish.x = -200; // Off-screen on left
+            SecondThreeFish.y = 200;
+
+            // Add Jellyfish sprite
+            let jellyfish = PIXI.Sprite.from(assetUrls[8]); // Jellyfish
+            jellyfish.scale.set(0.1);
+            jellyfish.anchor.set(0.5);
+            jellyfish.x = 600;
+            jellyfish.y = -400;
+
+            // Add Turtle sprite
+            let turtle = PIXI.Sprite.from(assetUrls[9]); // Turtle
+            turtle.scale.set(0.135);
+            turtle.anchor.set(0.38);
+            turtle.x = 125;
+            turtle.y = 875;
+
+            /*
+                    // Add bubble sprite
+                    let bubble = PIXI.Sprite.from(assetUrls[5]); // Bubbles
+                    bubble.scale.set(0.05);
+                    bubble.anchor.set(0.5);
+                    bubble.x = Math.random() * app.screen.width;
+                    bubble.y = app.screen.height;
+            */
+
+            // Fish container
+            let fishContainer = new PIXI.Container();
+            fishContainer.addChild(fish1);
+            fishContainer.addChild(fish2);
+            fishContainer.addChild(fish3);
+            fishContainer.addChild(fish4);
+            fishContainer.addChild(fish5);
+            fishContainer.addChild(fish6);
+            fishContainer.addChild(fish7);
+            fishContainer.addChild(fish8);
+            fishContainer.addChild(fish9);
+            app.stage.addChild(fishContainer);
+
+            // Add three fish above all other fish
+            app.stage.addChild(threeFish);
+            app.stage.addChild(SecondThreeFish);
+            app.stage.addChild(fish8);
+
+            // Plants
+            let plant1 = PIXI.Sprite.from(assetUrls[4]); // left bottom
+            plant1.scale.set(0.25);
+            plant1.x = 20;
+            plant1.y = 650;
+
+            let plant2 = PIXI.Sprite.from(assetUrls[4]); // left-center bottom
+            plant2.scale.set(0.25);
+            plant2.x = 150;
+            plant2.y = 650;
+
+            let plant3 = PIXI.Sprite.from(assetUrls[4]); // center bottom
+            plant3.scale.set(0.20);
+            plant3.x = 290;
+            plant3.y = 650;
+
+            let plant4 = PIXI.Sprite.from(assetUrls[4]); // right-center bottom
+            plant4.scale.set(0.30);
+            plant4.x = 420;
+            plant4.y = 650;
+
+            let plant5 = PIXI.Sprite.from(assetUrls[4]); // far-right bottom
+            plant5.scale.set(0.20);
+            plant5.x = 570;
+            plant5.y = 650;
+
+            let plant6 = PIXI.Sprite.from(assetUrls[4]); // bottom left
+            plant6.scale.set(0.2);
+            plant6.x = 80;
+            plant6.y = 670;
+
+            let plant7 = PIXI.Sprite.from(assetUrls[4]); // bottom right
+            plant7.scale.set(0.18);
+            plant7.x = 650;
+            plant7.y = 670;
+
+            let plant8 = PIXI.Sprite.from(assetUrls[4]); // Far left
+            plant8.scale.set(0.22);
+            plant8.x = 40;
+            plant8.y = 680;
+
+            let plant9 = PIXI.Sprite.from(assetUrls[4]); // additional plant far right
+            plant9.scale.set(0.25);
+            plant9.x = 730;
+            plant9.y = 680;
+
+            let plant10 = PIXI.Sprite.from(assetUrls[4]); // center
+            plant10.scale.set(0.20);
+            plant10.x = 490;
+            plant10.y = 670;
+
+            // New additional plants
+            let plant11 = PIXI.Sprite.from(assetUrls[4]);
+            plant11.scale.set(0.20);
+            plant11.x = 220;
+            plant11.y = 660;
+
+            let plant12 = PIXI.Sprite.from(assetUrls[4]);
+            plant12.scale.set(0.18);
+            plant12.x = 350;
+            plant12.y = 670;
+
+            let plant13 = PIXI.Sprite.from(assetUrls[4]);
+            plant13.scale.set(0.22);
+            plant13.x = 520;
+            plant13.y = 680;
+
+            let plant14 = PIXI.Sprite.from(assetUrls[4]);
+            plant14.scale.set(0.25);
+            plant14.x = 670;
+            plant14.y = 670;
+
+            let plant15 = PIXI.Sprite.from(assetUrls[4]);
+            plant15.scale.set(0.21);
+            plant15.x = 800;
+            plant15.y = 680;
+
+            let plant16 = PIXI.Sprite.from(assetUrls[4]);
+            plant16.scale.set(0.23);
+            plant16.x = 430;
+            plant16.y = 670;
+
+            let plant17 = PIXI.Sprite.from(assetUrls[4]);
+            plant17.scale.set(0.20);
+            plant17.x = 320;
+            plant17.y = 660;
+
+            let plant18 = PIXI.Sprite.from(assetUrls[4]);
+            plant18.scale.set(0.19);
+            plant18.x = 440;
+
+            let plant19 = PIXI.Sprite.from(assetUrls[4]);
+            plant19.scale.set(0.20);
+            plant19.x = 10;
+            plant19.y = 690;
+
+            let plant20 = PIXI.Sprite.from(assetUrls[4]);
+            plant20.scale.set(0.22);
+            plant20.x = 860;
+            plant20.y = 690;
+
+            // Adding plants to the stage
+            app.stage.addChild(plant1);
+            app.stage.addChild(plant2);
+            app.stage.addChild(plant3);
+            app.stage.addChild(plant4);
+            app.stage.addChild(plant5);
+            app.stage.addChild(plant6);
+            app.stage.addChild(plant7);
+            app.stage.addChild(plant8);
+            app.stage.addChild(plant9);
+            app.stage.addChild(plant10);
+
+            // Add Turtle and Jellyfish to the stage
+            app.stage.addChild(jellyfish);
+            app.stage.addChild(turtle);
+
+            // Add bubble sprite
+            let bubble = PIXI.Sprite.from(assetUrls[5]);
+            bubble.scale.set(0.05);
+            bubble.anchor.set(0.5);
+            bubble.x = Math.random() * app.screen.width;
+            bubble.y = app.screen.height;
+
+            app.stage.addChild(bubble);
+
+            // Fish movement
+            function moveFish() {
+                fish1.x -= 2; // Blue Fish
+                fish2.x -= 2; // Red Fish
+                fish3.x += 1.5; // Silver Fish
+                fish3.y -= 1; // Silver Fish 
+                fish4.x -= 2; // Yellow Fish
+                fish5.x -= 2; // Yellow and Blue Fish
+                fish6.x += 2; // Fish 6
+                fish7.x += 2; //  Fish 7
+                // Fish 8 
+                if (fish8Direction === 1) { // Moving right
+                    fish8.x += fish8Speed;
+                } else { // Moving left
+                    fish8.x -= fish8Speed;
+                    if (fish8.x < 20) { // Reset to start position if off-screen
+                        fish8.x = 20; // Reset to start position
+                        fish8Direction = 1; // Switch back to right direction
+                    }
+                }
+
+                fish9.x += 2; //  Fish 9
+
+                // Loop fish movement
+                if (fish1.x < -100) fish1.x = app.screen.width + 100;
+                if (fish2.x < -100) fish2.x = app.screen.width + 100;
+                if (fish3.y < -100) {
+                    fish3.x = 0; // Reset to start from bottom left
+                    fish3.y = 550;
+                }
+
+                if (fish4.x < -100) fish4.x = app.screen.width + 100;
+                if (fish5.x < -100) fish5.x = app.screen.width + 100;
+                if (fish6.x < -100) fish6.x = app.screen.width + 100;
+                if (fish7.x < -100) fish7.x = app.screen.width + 100;
+                if (fish8.x < -100) fish8.x = app.screen.width + 100;
+                if (fish8.y < 475 - 100) {
+                    fish8.y = 475 - 100;
+                }
+
+                // Reset fish 8's position when it goes off-screen
+                if (fish8.x < -100) {
+                    fish8.x = app.screen.width + 100; // To the right
+                    fish8.y = 475;
+                }
+                if (fish9.x < -100) fish9.x = app.screen.width + 100;
+
+                // Move three fish
+                threeFish.x += 2;
+                if (threeFish.x > app.screen.width + 100) {
+                    threeFish.x = -100;
+                }
+
+                // Second Three Fish movement
+                SecondThreeFish.x += 1.5;
+                if (SecondThreeFish.x > app.screen.width) {
+                    SecondThreeFish.x = -200; SecondThreeFish;
+                }
+
+                // Move jellyfish
+                jellyfish.y += Math.sin(Date.now() / 100) * 2; // Bobbing 
+                if (jellyfish.y > app.screen.height) {
+                    jellyfish.y = -jellyfish.height; // Reset to top
+                }
+
+                // Move turtle
+                turtle.x -= 1;
+                if (turtle.x < -turtle.width) {
+                    turtle.x = app.screen.width;
+                }
+
+                // Move bubble
+                bubble.y -= 1; // Bubble rising
+                if (bubble.y < -100) {
+                    bubble.y = app.screen.height;
+                    bubble.x = Math.random() * app.screen.width;
+                }
+            } // Close moveFish function
+
+            // Animation loop
+            app.ticker.add(moveFish);
+        } // Close startAnimation function
+
+        // Start the animation when the button is clicked
+        document.getElementById('start-button').addEventListener('click', startAnimation);
+    </script>

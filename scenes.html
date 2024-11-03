@@ -4,15 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scene Management</title>
-
-    <!--
-
-        First note what we're loading in.
-
-        We could also do this the JavaScript Module route, but we'll learn about that later.
-
-    -->
+    <title>Meet the Fishes</title>
     <script src="https://pixijs.download/release/pixi.js"></script>
     <script src="js/bezier.js"></script>
     <script src="js/animate.js"></script>
@@ -21,23 +13,207 @@
 <body>
 
 <script type="module">
-
-    //
-    // Basic setup
-    //
-
-    //The App
-    var app = new PIXI.Application();
-    await app.init({
-        width:640,
-        height:480,
-        backgroundColor: 0x000000
+    const app = new PIXI.Application({
+        width: 640,
+        height: 480,
+        backgroundColor: 0x00dfff // Water background
     });
-    var stage = app.stage;
-    var view = app.canvas;
-
-    //Add view to the document
     document.body.appendChild(app.view);
+
+    // Load assets
+    const assetUrls = [
+        "img/Blue Fish.png",
+        "img/Red Fish.png",
+        "img/Silver Fish.png",
+        "img/Yellow Fish.png",
+        "img/—Pngtree—fresh and large seaweed_5256743.png",
+        "img/bubbles.png",
+        "img/Yellow ish and Blue Fish.png",
+        "img/3 fish.png",
+        "img/jellyfish.png",
+        "img/Turtle.png",
+        "img/Brown and Green Fish.png",
+        "img/lepomis-gibbosus.png",
+        "img/Goldfish.png",
+        "img/lepomis-macrochirus.png"
+    ];
+
+    const loader = new PIXI.Loader();
+    assetUrls.forEach(asset => loader.add(asset));
+
+    const fishProfiles = [
+        {
+            name: "Blue Fish",
+            description: "A beautiful blue fish that swims gracefully.",
+            image: "img/Blue Fish.png"
+        },
+        {
+            name: "Red Fish",
+            description: "A vibrant red fish known for its striking appearance.",
+            image: "img/Red Fish.png"
+        },
+        {
+            name: "Silver Fish",
+            description: "A sleek silver fish that glimmers in the light.",
+            image: "img/Silver Fish.png"
+        }
+    ];
+
+    const Director = {
+        scene: {},
+        currentScene: null,
+        addScene(name, scene) {
+            if (Director.scene[name]) throw "Scene already exists!";
+            Director.scene[name] = scene;
+            if (!Director.currentScene) Director.currentScene = name;
+        },
+        async showScene(name, params = { transition: Director.fade }) {
+            const current = Director.scene[Director.currentScene];
+            const next = Director.scene[name];
+            await params.transition(current, next, params);
+            Director.currentScene = name;
+        },
+        fade: async (current, next, params = { duration: 500 }) => {
+            await Animate.to(current, { alpha: 0, duration: params.duration / 2 });
+            app.stage.removeChild(current);
+            next.alpha = 0;
+            app.stage.addChild(next);
+            await Animate.to(next, { alpha: 1, duration: params.duration / 2 });
+        },
+    };
+
+    loader.load((loader, resources) => {
+        setupScenes(resources);
+        setupTitleScreen(); // Set up title screen
+        Director.showScene('title'); // Show title screen first
+    });
+
+    function setupScenes(resources) {
+        // Aquarium Scene
+        const aquariumScene = new PIXI.Container();
+        aquariumScene.addChild(new PIXI.Text("Aquarium Scene", { fill: 0xFFFFFF, fontSize: 24 }));
+
+        // Add the fish profiles as individual scenes
+        fishProfiles.forEach((fish, index) => {
+            const fishScene = new PIXI.Container();
+
+            // Create fish image
+            const fishImage = PIXI.Sprite.from(resources[fish.image].texture);
+            fishImage.anchor.set(0.5);
+            fishImage.x = app.view.width / 2;
+            fishImage.y = app.view.height / 2 - 50;
+
+            // Create fish title
+            const fishTitle = new PIXI.Text(fish.name, {
+                fill: 0xFFFFFF,
+                fontSize: 36,
+                fontWeight: 'bold'
+            });
+            fishTitle.x = app.view.width / 2 - 100;
+            fishTitle.y = app.view.height / 2 - 100;
+
+            // Create fish description
+            const fishDescription = new PIXI.Text(fish.description, {
+                fill: 0xFFFFFF,
+                fontSize: 24,
+                wordWrap: true,
+                wordWrapWidth: 400
+            });
+            fishDescription.x = app.view.width / 2 - 200;
+            fishDescription.y = app.view.height / 2 + 50;
+
+            // Add elements to the fish scene
+            fishScene.addChild(fishImage);
+            fishScene.addChild(fishTitle);
+            fishScene.addChild(fishDescription);
+
+            // Add the fish scene to the Director
+            Director.addScene(`fish${index + 1}`, fishScene);
+        });
+
+        // Create navigation buttons for aquarium scene
+        const nextButton = UI.Button(0, 0, "Next >");
+        nextButton.x = app.view.width - nextButton.width - 20;
+        nextButton.y = app.view.height - nextButton.height - 20;
+        aquariumScene.addChild(nextButton);
+
+        const backButton = UI.Button(0, 0, "< Back");
+        backButton.x = 20;
+        backButton.y = app.view.height - backButton.height - 20;
+        aquariumScene.addChild(backButton);
+
+        // Set up button actions
+        nextButton.onclick = () => {
+            const currentIndex = parseInt(Director.currentScene.replace('fish', '')) - 1;
+            const nextIndex = (currentIndex + 1) % fishProfiles.length; // Loop back to first
+            Director.showScene(`fish${nextIndex + 1}`);
+        };
+
+        backButton.onclick = () => {
+            const currentIndex = parseInt(Director.currentScene.replace('fish', '')) - 1;
+            const prevIndex = (currentIndex - 1 + fishProfiles.length) % fishProfiles.length; // Loop to last
+            Director.showScene(`fish${prevIndex + 1}`);
+        };
+
+        // Add the main aquarium scene to the Director
+        Director.addScene('aquarium', aquariumScene);
+    }
+
+    function setupTitleScreen() {
+        const titleScene = new PIXI.Container();
+
+        // Create title text
+        const titleText = new PIXI.Text("Welcome to the Aquarium!", {
+            fill: 0xFFFFFF,
+            fontSize: 48,
+            fontWeight: 'bold'
+        });
+        titleText.anchor.set(0.5);
+        titleText.x = app.view.width / 2;
+        titleText.y = app.view.height / 2 - 50;
+
+        // Create start button
+        const startButton = UI.Button(0, 0, "Start >");
+        startButton.x = app.view.width / 2 - startButton.width / 2;
+        startButton.y = app.view.height / 2 + 20;
+
+        // Add text and button to the title scene
+        titleScene.addChild(titleText);
+        titleScene.addChild(startButton);
+
+        // Add the title scene to the Director
+        Director.addScene('title', titleScene);
+
+        // Set up button action to go to the aquarium scene
+        startButton.onclick = () => {
+            Director.showScene('aquarium');
+        };
+    }
+
+    function animateFish(fish, type) {
+        if (type === 'scale') {
+            fish.scale.set(1);
+            app.ticker.add(() => {
+                fish.x += 1;
+                fish.scale.x = 1 + 0.1 * Math.sin(Date.now() / 500);
+                fish.scale.y = fish.scale.x;
+
+                if (fish.x > app.renderer.width) fish.x = -fish.width;
+            });
+        }
+        if (type === 'rotate') {
+            app.ticker.add(() => {
+                fish.x += 1;
+                fish.rotation += 0.01;
+
+                if (fish.x > app.renderer.width) fish.x = -fish.width;
+            });
+        }
+    }
+</script>
+</body>
+</html>
+
 
     /*
         Depending on the system or context, these can be called "scenes" "views" "pages" "panels" or all sorts of other things.
@@ -56,7 +232,6 @@
 
     //Using our button object let's create a "next" button.
     let nextButton = UI.Button(0,0,"Next >");
-    
     //Let's place it in the bottom right-hand corner of the screen (regardless of size)
     nextButton.x = app.view.width  - nextButton.width;
     nextButton.y = app.view.height - nextButton.height;
@@ -76,7 +251,6 @@
 
     //Using our button object let's create a "next" button.
     let backButton = UI.Button(0,0,"< Back");
-    
     //Let's place it in the bottom left-hand corner of the screen (regardless of size)
     backButton.x = 0;
     backButton.y = app.view.height - backButton.height;
@@ -214,14 +388,12 @@
 
         //It holds a list of scenes
         scene : {},
-        
         //Add a scene to the list
         addScene : (name,scene) => {
 
             //If it exists throw an error
-            if (Director.scene[name]) 
+            if (Director.scene[name])
                 throw "That scene already exists!"
-            
             //Otherwise add it
             Director.scene[name] = scene;
 
@@ -373,14 +545,10 @@
         Put together a multi-scened presentation to show off fictional profiles of 3 of *your* fish. (Replace the ones in the images folder here.)
 
         (Read up on the Graphics and Text display objects here:)
-        
             https://pixijs.download/dev/docs/PIXI.Graphics.html
             https://pixijs.download/dev/docs/PIXI.Text.html
-        
         (They will help.)
-        
         Each fish should be animated on their profile page in their own unique way.
-        
         There should be – at least – a title screen, and one screen for each fish but bonus points for adding on more.
 
         Add to the button system so that the buttons look more aesthetic.
@@ -388,8 +556,3 @@
         Add in a new transition of your choice and implement it on one of your transitions.
 
     */
-
-</script>
-    
-</body>
-</html>
