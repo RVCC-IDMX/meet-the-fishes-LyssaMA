@@ -31,7 +31,8 @@
             text-align: center;
             z-index: 10;
         }
-/*
+
+        /*
         #title-screen:hover{
             background-color: rgba(0, 223, 255, 0.9);
             color: #ffffff;
@@ -71,7 +72,8 @@
             document.getElementById('title-screen').style.display = 'none';
 
             // Initialize PixiJS application
-            const app = new PIXI.Application({
+            const app = new PIXI.Application();
+            app.init({
                 width: 2000,
                 height: 1000,
                 backgroundColor: 0x00dfff
@@ -98,7 +100,13 @@
             ];
 
             // Wait for assets to load
-            await Promise.all(assetUrls.map(url => PIXI.Assets.load(url)));
+            await Promise.all(assetUrls.map(url =>
+                PIXI.Assets.load(url).catch(error => {
+                    console.error(`Failed to load asset: ${url}`, error);
+                    return null; // Return null to avoid breaking the Promise.all
+                })
+            ));
+            ;
 
             // Add fish sprites
             let fish1 = PIXI.Sprite.from(assetUrls[0]); // Blue Fish

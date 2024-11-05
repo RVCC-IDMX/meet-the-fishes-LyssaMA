@@ -16,7 +16,7 @@
     const app = new PIXI.Application({
         width: 640,
         height: 480,
-        backgroundColor: 0x00dfff // Water background
+        backgroundColor: 0x00dfff 
     });
     document.body.appendChild(app.view);
 
@@ -44,17 +44,17 @@
     const fishProfiles = [
         {
             name: "Blue Fish",
-            description: "A beautiful blue fish that swims gracefully.",
+            description: "Bright and beautiful.",
             image: "img/Blue Fish.png"
         },
         {
             name: "Red Fish",
-            description: "A vibrant red fish known for its striking appearance.",
+            description: "Light red",
             image: "img/Red Fish.png"
         },
         {
             name: "Silver Fish",
-            description: "A sleek silver fish that glimmers in the light.",
+            description: "Sleek and slim.",
             image: "img/Silver Fish.png"
         }
     ];
@@ -84,7 +84,7 @@
 
     loader.load((loader, resources) => {
         setupScenes(resources);
-        setupTitleScreen(); // Set up title screen
+        setupTitleScreen(); 
         Director.showScene('title'); // Show title screen first
     });
 
@@ -98,13 +98,13 @@
             const fishScene = new PIXI.Container();
 
             // Create fish image
-            const fishImage = PIXI.Sprite.from(resources[fish.image].texture);
+            const fishImage = PIXI.Sprite.from(resources['img/Blue Fish.png'].texture);
             fishImage.anchor.set(0.5);
             fishImage.x = app.view.width / 2;
             fishImage.y = app.view.height / 2 - 50;
 
             // Create fish title
-            const fishTitle = new PIXI.Text(fish.name, {
+            const fishTitle = new PIXI.Text(fish.name, { 
                 fill: 0xFFFFFF,
                 fontSize: 36,
                 fontWeight: 'bold'
