@@ -146,7 +146,7 @@
             fish6.x = 575;
             fish6.y = 325;
 
-            let fish7 = PIXI.Sprite.from(assetUrls[11]); //  Fish 7
+            let fish7 = PIXI.Sprite.frm(assetUrls[11]); //  Fish 7
             fish7.scale.set(-0.15, .15);
             fish7.anchor.set(0.5);
             fish7.x = 475;
@@ -168,8 +168,6 @@
             fish9.anchor.set(0.5);
             fish9.x = 575;
             fish9.y = 475;
-
-
 
             // Add three fish sprite
             let threeFish = PIXI.Sprite.from(assetUrls[7]); // Three Fish (school)
@@ -364,8 +362,6 @@
 
             app.stage.addChild(bubble);
 
-
-
             // Fish movement
             function moveFish() {
                 fish1.x -= 2; // Blue Fish
@@ -451,6 +447,4 @@
 
         // Start the animation when the button is clicked
         document.getElementById('start-button').addEventListener('click', startAnimation);
-
-
     </script>

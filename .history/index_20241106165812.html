@@ -73,7 +73,7 @@
 
             // Initialize PixiJS application
             const app = new PIXI.Application();
-            await app.init({
+            app.init({
                 width: 2000,
                 height: 1000,
                 backgroundColor: 0x00dfff,
@@ -84,7 +84,7 @@
 
             // Load assets
             const assetUrls = [
-                "img/BlueFish.png",    // Fish 1
+                "img/Blue Fish.png",    // Fish 1
                 "img/Red Fish.png",     // Fish 2
                 "img/Silver Fish.png",   // Fish 3
                 "img/Yellow Fish.png",   // Fish 4
@@ -94,7 +94,7 @@
                 "img/3 fish.png",    // Three Fish
                 "img/jellyfish.png",    // Jellyfish
                 "img/Turtle.png",  // Turtle
-                "img/BrownandGreenFish.png",  //  Fish 6
+                "img/Brown and Green Fish.png",  //  Fish 6
                 "img/lepomis-gibbosus.png",  //  Fish 7
                 "img/Goldfish.png",  //  Fish 8
                 "img/lepomis-macrochirus.png"  //  Fish 9
@@ -169,14 +169,12 @@
             fish9.x = 575;
             fish9.y = 475;
 
-
-
             // Add three fish sprite
             let threeFish = PIXI.Sprite.from(assetUrls[7]); // Three Fish (school)
-            threeFish.scale.set(0.1);
-            threeFish.anchor.set(0.5);
+            threeFish.scale.set(0.1); 
+            threeFish.anchor.set(0.5); 
             threeFish.x = -200;
-            threeFish.y = 720;
+            threeFish.y = 720; 
 
             // Second three fish sprite
             let SecondThreeFish = PIXI.Sprite.from(assetUrls[7]); // Three Fish (little school)
@@ -348,7 +346,7 @@
             app.stage.addChild(plant18);
             app.stage.addChild(plant19);
             app.stage.addChild(plant20);
-
+    
 
 
             // Add Turtle and Jellyfish to the stage
@@ -363,8 +361,6 @@
             bubble.y = app.screen.height;
 
             app.stage.addChild(bubble);
-
-
 
             // Fish movement
             function moveFish() {
@@ -451,6 +447,4 @@
 
         // Start the animation when the button is clicked
         document.getElementById('start-button').addEventListener('click', startAnimation);
-
-
     </script>

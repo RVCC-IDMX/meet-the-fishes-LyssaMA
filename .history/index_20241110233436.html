@@ -169,8 +169,6 @@
             fish9.x = 575;
             fish9.y = 475;
 
-
-
             // Add three fish sprite
             let threeFish = PIXI.Sprite.from(assetUrls[7]); // Three Fish (school)
             threeFish.scale.set(0.1);
@@ -364,8 +362,6 @@
 
             app.stage.addChild(bubble);
 
-
-
             // Fish movement
             function moveFish() {
                 fish1.x -= 2; // Blue Fish
@@ -452,5 +448,69 @@
         // Start the animation when the button is clicked
         document.getElementById('start-button').addEventListener('click', startAnimation);
 
+        // Set up each fish for drag and drop
+        fishes.forEach(fish => {
+                const sprite = fish.sprite;
+                sprite.scale.set(fish.scale);
+                sprite.anchor.set(0.5);
+                sprite.x = fish.x;
+                sprite.y = fish.y;
+                sprite.interactive = true;
+                sprite.buttonMode = true;
 
+                // Variables for dragging
+                let dragging = false;
+                let offsetX = 0;
+                let offsetY = 0;
+
+                // Event listeners for drag and drop
+                sprite.on('pointerdown', (event) => {
+                    dragging = true;
+                    const mousePosition = event.data.getLocalPosition(sprite.parent);
+                    offsetX = sprite.x - mousePosition.x;
+                    offsetY = sprite.y - mousePosition.y;
+                    sprite.alpha = 0.5; // make the fish semi-transparent when being dragged
+                });
+
+                sprite.on('pointermove', (event) => {
+                    if (dragging) {
+                        const mousePosition = event.data.getLocalPosition(sprite.parent);
+                        sprite.x = mousePosition.x + offsetX;
+                        sprite.y = mousePosition.y + offsetY;
+                    }
+                });
+
+                sprite.on('pointerup', () => {
+                    dragging = false;
+                    sprite.alpha = 1; // reset transparency when drag ends
+                });
+
+                sprite.on('pointerupoutside', () => {
+                    dragging = false;
+                    sprite.alpha = 1; // reset transparency when drag ends outside the sprite
+                });
+
+                // Add the fish to the stage
+                app.stage.addChild(sprite);
+            });
+
+            // Additional stage setup for other elements (plants, bubbles, etc.) as needed
+
+            // Animation loop for fish movement
+            function moveFish() {
+                fishes.forEach(fish => {
+                    // Implement movement logic here if needed, for example:
+                    // fish.sprite.x += Math.random() * 2 - 1; // Random horizontal movement
+                });
+            }
+
+            app.ticker.add(moveFish); // Start the animation loop
+        }
+
+        // Start the animation when the button is clicked
+        document.getElementById('start-button').addEventListener('click', startAnimation);
+    </script>
+</body>
+
+</html>
     </script>

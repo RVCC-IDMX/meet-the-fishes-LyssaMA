@@ -169,7 +169,7 @@
             fish9.x = 575;
             fish9.y = 475;
 
-
+            
 
             // Add three fish sprite
             let threeFish = PIXI.Sprite.from(assetUrls[7]); // Three Fish (school)
@@ -364,6 +364,46 @@
 
             app.stage.addChild(bubble);
 
+// Set up fish for drag and drop
+fishSprites.forEach(fish => {
+                let dragging = false;
+                let offsetX = 0;
+                let offsetY = 0;
+
+                fish.on('pointerdown', (event) => {
+                    dragging = true;
+                    const mousePosition = event.data.getLocalPosition(fish.parent);
+                    offsetX = fish.x - mousePosition.x;
+                    offsetY = fish.y - mousePosition.y;
+                    fish.alpha = 0.5; // make the fish semi-transparent when being dragged
+                });
+
+                fish.on('pointermove', (event) => {
+                    if (dragging) {
+                        const mousePosition = event.data.getLocalPosition(fish.parent);
+                        fish.x = mousePosition.x + offsetX;
+                        fish.y = mousePosition.y + offsetY;
+                    }
+                });
+
+                fish.on('pointerup', () => {
+                    dragging = false;
+                    fish.alpha = 1; // reset transparency when drag ends
+                });
+
+                fish.on('pointerupoutside', () => {
+                    dragging = false;
+                    fish.alpha = 1; // reset transparency when drag ends outside the sprite
+                });
+            });
+
+            // Add some movement for the fish
+            function moveFish() {
+                fishSprites.forEach(fish => {
+                    fish.x += Math.random() * 2 - 1; // Move fish in random direction
+                    fish.y += Math.random() * 2 - 1;
+                });
+            }
 
 
             // Fish movement
@@ -452,5 +492,5 @@
         // Start the animation when the button is clicked
         document.getElementById('start-button').addEventListener('click', startAnimation);
 
-
+        
     </script>
